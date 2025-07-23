@@ -10,7 +10,7 @@
 
 u32 hnat_dsa_fill_stag(const struct net_device *netdev,
 		       struct foe_entry *entry,
-		       struct flow_offload_hw_path *hw_path,
+		       struct hnat_hw_path *hw_path,
 		       u16 eth_proto,
 		       int mape)
 {
@@ -19,8 +19,8 @@ u32 hnat_dsa_fill_stag(const struct net_device *netdev,
 	int port_index;
 	u16 sp_tag;
 
-	if (hw_path->flags & FLOW_OFFLOAD_PATH_VLAN)
-		ndev = hw_path->dev;
+	if (hw_path->flags & HNAT_PATH_VLAN)
+		ndev = hw_path->real_dev;
 	else
 		ndev = netdev;
 

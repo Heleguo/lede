@@ -24,11 +24,9 @@
 #include <linux/ctype.h>
 #include <linux/debugfs.h>
 #include <linux/of_mdio.h>
-#include <linux/version.h>
 
 #include "mtk_eth_soc.h"
 #include "mtk_eth_dbg.h"
-#include "mtk_eth_reset.h"
 
 u32 hw_lro_agg_num_cnt[MTK_HW_LRO_RING_NUM][MTK_HW_LRO_MAX_AGG_CNT + 1];
 u32 hw_lro_agg_size_cnt[MTK_HW_LRO_RING_NUM][16];
@@ -100,6 +98,15 @@ static int mtketh_debug_show(struct seq_file *m, void *private)
 		    of_phy_is_fixed_link(eth->mac[i]->of_node))
 			continue;
 		mac = eth->mac[i];
+#if 0 //FIXME
+		while (j < 30) {
+			d =  _mtk_mdio_read(eth, mac->phy_dev->addr, j);
+
+			seq_printf(m, "phy=%d, reg=0x%08x, data=0x%08x\n",
+				   mac->phy_dev->addr, j, d);
+			j++;
+		}
+#endif		
 	}
 	return 0;
 }
@@ -312,7 +319,6 @@ static ssize_t mtketh_debugfs_reset(struct file *file, const char __user *ptr,
 {
 	struct mtk_eth *eth = file->private_data;
 
-	atomic_inc(&force);
 	schedule_work(&eth->pending_work);
 	return len;
 }
@@ -611,24 +617,14 @@ static int switch_count_open(struct inode *inode, struct file *file)
 	return single_open(file, esw_cnt_read, 0);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations switch_count_fops = {
-	.owner = THIS_MODULE,
-	.open = switch_count_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release
-};
-#else
 static const struct proc_ops switch_count_fops = {
-	.proc_open = switch_count_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_release = single_release
+        .proc_open = switch_count_open,
+        .proc_read = seq_read,
+        .proc_lseek = seq_lseek,
+        .proc_release = single_release
 };
-#endif
 
-static struct proc_dir_entry *proc_tx_ring, *proc_hwtx_ring, *proc_rx_ring;
+static struct proc_dir_entry *proc_tx_ring, *proc_rx_ring;
 
 int tx_ring_read(struct seq_file *seq, void *v)
 {
@@ -655,7 +651,7 @@ int tx_ring_read(struct seq_file *seq, void *v)
 		seq_printf(seq, "%d (%pad): %08x %08x %08x %08x", i, &tmp,
 			   *(int *)&tx_ring[i].txd1, *(int *)&tx_ring[i].txd2,
 			   *(int *)&tx_ring[i].txd3, *(int *)&tx_ring[i].txd4);
-#if defined(CONFIG_MEDIATEK_NETSYS_V2)
+#if defined(CONFIG_MEDIATEK_NETSYS_V2) || defined(CONFIG_MEDIATEK_NETSYS_V3)
 		seq_printf(seq, " %08x %08x %08x %08x",
 			   *(int *)&tx_ring[i].txd5, *(int *)&tx_ring[i].txd6,
 			   *(int *)&tx_ring[i].txd7, *(int *)&tx_ring[i].txd8);
@@ -672,78 +668,12 @@ static int tx_ring_open(struct inode *inode, struct file *file)
 	return single_open(file, tx_ring_read, NULL);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations tx_ring_fops = {
-	.owner = THIS_MODULE,
-	.open = tx_ring_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release
-};
-#else
 static const struct proc_ops tx_ring_fops = {
-	.proc_open = tx_ring_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_release = single_release
+        .proc_open = tx_ring_open,
+        .proc_read = seq_read,
+        .proc_lseek = seq_lseek,
+        .proc_release = single_release
 };
-#endif
-
-int hwtx_ring_read(struct seq_file *seq, void *v)
-{
-	struct mtk_eth *eth = g_eth;
-	struct mtk_tx_dma *hwtx_ring;
-	int i = 0;
-
-	hwtx_ring =
-	    kmalloc(sizeof(struct mtk_tx_dma) * MTK_DMA_SIZE, GFP_KERNEL);
-	if (!hwtx_ring) {
-		seq_puts(seq, " allocate temp hwtx_ring fail.\n");
-		return 0;
-	}
-
-	for (i = 0; i < MTK_DMA_SIZE; i++)
-		hwtx_ring[i] = eth->scratch_ring[i];
-
-	for (i = 0; i < MTK_DMA_SIZE; i++) {
-		dma_addr_t addr = eth->phy_scratch_ring + i * sizeof(*hwtx_ring);
-
-		seq_printf(seq, "%d (%pad): %08x %08x %08x %08x", i, &addr,
-			   *(int *)&hwtx_ring[i].txd1, *(int *)&hwtx_ring[i].txd2,
-			   *(int *)&hwtx_ring[i].txd3, *(int *)&hwtx_ring[i].txd4);
-#if defined(CONFIG_MEDIATEK_NETSYS_V2)
-		seq_printf(seq, " %08x %08x %08x %08x",
-			   *(int *)&hwtx_ring[i].txd5, *(int *)&hwtx_ring[i].txd6,
-			   *(int *)&hwtx_ring[i].txd7, *(int *)&hwtx_ring[i].txd8);
-#endif
-		seq_printf(seq, "\n");
-	}
-
-	kfree(hwtx_ring);
-	return 0;
-}
-
-static int hwtx_ring_open(struct inode *inode, struct file *file)
-{
-	return single_open(file, hwtx_ring_read, NULL);
-}
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations hwtx_ring_fops = {
-	.owner = THIS_MODULE,
-	.open = hwtx_ring_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release
-};
-#else
-static const struct proc_ops hwtx_ring_fops = {
-	.proc_open = hwtx_ring_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_release = single_release
-};
-#endif
 
 int rx_ring_read(struct seq_file *seq, void *v)
 {
@@ -768,7 +698,7 @@ int rx_ring_read(struct seq_file *seq, void *v)
 		seq_printf(seq, "%d: %08x %08x %08x %08x", i,
 			   *(int *)&rx_ring[i].rxd1, *(int *)&rx_ring[i].rxd2,
 			   *(int *)&rx_ring[i].rxd3, *(int *)&rx_ring[i].rxd4);
-#if defined(CONFIG_MEDIATEK_NETSYS_V2)
+#if defined(CONFIG_MEDIATEK_NETSYS_V2) || defined(CONFIG_MEDIATEK_NETSYS_V3)
 		seq_printf(seq, " %08x %08x %08x %08x",
 			   *(int *)&rx_ring[i].rxd5, *(int *)&rx_ring[i].rxd6,
 			   *(int *)&rx_ring[i].rxd7, *(int *)&rx_ring[i].rxd8);
@@ -785,22 +715,12 @@ static int rx_ring_open(struct inode *inode, struct file *file)
 	return single_open(file, rx_ring_read, NULL);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations rx_ring_fops = {
-	.owner = THIS_MODULE,
-	.open = rx_ring_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release
-};
-#else
 static const struct proc_ops rx_ring_fops = {
-	.proc_open = rx_ring_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_release = single_release
+        .proc_open = rx_ring_open,
+        .proc_read = seq_read,
+        .proc_lseek = seq_lseek,
+        .proc_release = single_release
 };
-#endif
 
 static inline u32 mtk_dbg_r32(u32 reg)
 {
@@ -821,10 +741,11 @@ int dbg_regs_read(struct seq_file *seq, void *v)
 	seq_puts(seq, "   <<DEBUG REG DUMP>>\n");
 
 	seq_printf(seq, "| FE_INT_STA	: %08x |\n",
-		   mtk_r32(eth, MTK_FE_INT_STATUS));
-	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2))
+		   mtk_r32(eth, MTK_INT_STATUS));
+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2) ||
+	    MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V3))
 		seq_printf(seq, "| FE_INT_STA2	: %08x |\n",
-			   mtk_r32(eth, MTK_FE_INT_STATUS2));
+			   mtk_r32(eth, MTK_INT_STATUS2));
 
 	seq_printf(seq, "| PSE_FQFC_CFG	: %08x |\n",
 		   mtk_r32(eth, MTK_PSE_FQFC_CFG));
@@ -833,7 +754,8 @@ int dbg_regs_read(struct seq_file *seq, void *v)
 	seq_printf(seq, "| PSE_IQ_STA2	: %08x |\n",
 		   mtk_r32(eth, MTK_PSE_IQ_STA(1)));
 
-	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2) ||
+	    MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V3)) {
 		seq_printf(seq, "| PSE_IQ_STA3	: %08x |\n",
 			   mtk_r32(eth, MTK_PSE_IQ_STA(2)));
 		seq_printf(seq, "| PSE_IQ_STA4	: %08x |\n",
@@ -847,7 +769,8 @@ int dbg_regs_read(struct seq_file *seq, void *v)
 	seq_printf(seq, "| PSE_OQ_STA2	: %08x |\n",
 		   mtk_r32(eth, MTK_PSE_OQ_STA(1)));
 
-	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2) ||
+	    MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V3)) {
 		seq_printf(seq, "| PSE_OQ_STA3	: %08x |\n",
 			   mtk_r32(eth, MTK_PSE_OQ_STA(2)));
 		seq_printf(seq, "| PSE_OQ_STA4	: %08x |\n",
@@ -887,7 +810,8 @@ int dbg_regs_read(struct seq_file *seq, void *v)
 	seq_printf(seq, "| MAC_P2_FSM	: %08x |\n",
 		   mtk_r32(eth, MTK_MAC_FSM(1)));
 
-	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2)) {
+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2) ||
+	    MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V3)) {
 		seq_printf(seq, "| FE_CDM1_FSM	: %08x |\n",
 			   mtk_r32(eth, MTK_FE_CDM1_FSM));
 		seq_printf(seq, "| FE_CDM2_FSM	: %08x |\n",
@@ -910,9 +834,10 @@ int dbg_regs_read(struct seq_file *seq, void *v)
 			   mtk_dbg_r32(MTK_WED_RTQM_GLO_CFG));
 	}
 
-	mtk_w32(eth, 0xffffffff, MTK_FE_INT_STATUS);
-	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2))
-		mtk_w32(eth, 0xffffffff, MTK_FE_INT_STATUS2);
+	mtk_w32(eth, 0xffffffff, MTK_INT_STATUS);
+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2) ||
+	    MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V3))
+		mtk_w32(eth, 0xffffffff, MTK_INT_STATUS2);
 
 	return 0;
 }
@@ -922,28 +847,18 @@ static int dbg_regs_open(struct inode *inode, struct file *file)
 	return single_open(file, dbg_regs_read, 0);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations dbg_regs_fops = {
-	.owner = THIS_MODULE,
-	.open = dbg_regs_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release
-};
-#else
 static const struct proc_ops dbg_regs_fops = {
-	.proc_open = dbg_regs_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_release = single_release
+        .proc_open = dbg_regs_open,
+        .proc_read = seq_read,
+        .proc_lseek = seq_lseek,
+        .proc_release = single_release
 };
-#endif
 
 void hw_lro_stats_update(u32 ring_no, struct mtk_rx_dma *rxd)
 {
 	u32 idx, agg_cnt, agg_size;
 
-#if defined(CONFIG_MEDIATEK_NETSYS_V2)
+#if defined(CONFIG_MEDIATEK_NETSYS_V2) || defined(CONFIG_MEDIATEK_NETSYS_V3)
 	idx = ring_no - 4;
 	agg_cnt = RX_DMA_GET_AGG_CNT_V2(rxd->rxd6);
 #else
@@ -963,7 +878,7 @@ void hw_lro_flush_stats_update(u32 ring_no, struct mtk_rx_dma *rxd)
 {
 	u32 idx, flush_reason;
 
-#if defined(CONFIG_MEDIATEK_NETSYS_V2)
+#if defined(CONFIG_MEDIATEK_NETSYS_V2) || defined(CONFIG_MEDIATEK_NETSYS_V3)
 	idx = ring_no - 4;
 	flush_reason = RX_DMA_GET_FLUSH_RSN_V2(rxd->rxd6);
 #else
@@ -1210,7 +1125,8 @@ int hw_lro_stats_read_wrapper(struct seq_file *seq, void *v)
 {
 	struct mtk_eth *eth = g_eth;
 
-	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2))
+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V2) ||
+	    MTK_HAS_CAPS(eth->soc->caps, MTK_NETSYS_V3))
 		hw_lro_stats_read_v2(seq, v);
 	else
 		hw_lro_stats_read_v1(seq, v);
@@ -1223,24 +1139,13 @@ static int hw_lro_stats_open(struct inode *inode, struct file *file)
 	return single_open(file, hw_lro_stats_read_wrapper, NULL);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations hw_lro_stats_fops = {
-	.owner = THIS_MODULE,
-	.open = hw_lro_stats_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.write = hw_lro_stats_write,
-	.release = single_release
-};
-#else
 static const struct proc_ops hw_lro_stats_fops = {
-	.proc_open = hw_lro_stats_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_write = hw_lro_stats_write,
-	.proc_release = single_release
+        .proc_open = hw_lro_stats_open,
+        .proc_read = seq_read,
+        .proc_lseek = seq_lseek,
+        .proc_write = hw_lro_stats_write,
+        .proc_release = single_release
 };
-#endif
 
 int hwlro_agg_cnt_ctrl(int cnt)
 {
@@ -1491,7 +1396,8 @@ int hw_lro_auto_tlb_read(struct seq_file *seq, void *v)
 	seq_puts(seq, "[4] = hwlro_ring_enable_ctrl\n");
 	seq_puts(seq, "[5] = hwlro_stats_enable_ctrl\n\n");
 
-	if (MTK_HAS_CAPS(g_eth->soc->caps, MTK_NETSYS_V2)) {
+	if (MTK_HAS_CAPS(g_eth->soc->caps, MTK_NETSYS_V2) ||
+	    MTK_HAS_CAPS(g_eth->soc->caps, MTK_NETSYS_V3)) {
 		for (i = 1; i <= 8; i++)
 			hw_lro_auto_tlb_dump_v2(seq, i);
 	} else {
@@ -1527,7 +1433,7 @@ int hw_lro_auto_tlb_read(struct seq_file *seq, void *v)
 		    ((reg_op1 >> MTK_LRO_RING_AGE_TIME_L_OFFSET) & 0x3ff);
 		seq_printf(seq,
 			   "Ring[%d]: MAX_AGG_CNT=%d, AGG_TIME=%d, AGE_TIME=%d, Threshold=%d\n",
-			   (MTK_HAS_CAPS(g_eth->soc->caps, MTK_NETSYS_V2))? i+3 : i,
+			   (MTK_HAS_CAPS(g_eth->soc->caps, MTK_NETSYS_V1)) ? i : i+3,
 			   agg_cnt, agg_time, age_time, reg_op4);
 	}
 
@@ -1541,94 +1447,16 @@ static int hw_lro_auto_tlb_open(struct inode *inode, struct file *file)
 	return single_open(file, hw_lro_auto_tlb_read, NULL);
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations hw_lro_auto_tlb_fops = {
-	.owner = THIS_MODULE,
-	.open = hw_lro_auto_tlb_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.write = hw_lro_auto_tlb_write,
-	.release = single_release
-};
-#else
 static const struct proc_ops hw_lro_auto_tlb_fops = {
-	.proc_open = hwtx_ring_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_write = hw_lro_auto_tlb_write,
-	.proc_release = single_release
+        .proc_open = hw_lro_auto_tlb_open,
+        .proc_read = seq_read,
+        .proc_lseek = seq_lseek,
+        .proc_write = hw_lro_auto_tlb_write,
+        .proc_release = single_release
 };
-#endif
-
-int reset_event_read(struct seq_file *seq, void *v)
-{
-	struct mtk_eth *eth = g_eth;
-	struct mtk_reset_event reset_event = eth->reset_event;
-
-	seq_printf(seq, "[Event]		[Count]\n");
-	seq_printf(seq, " FQ Empty:	%d\n",
-		   reset_event.count[MTK_EVENT_FQ_EMPTY]);
-	seq_printf(seq, " TSO Fail:	%d\n",
-		   reset_event.count[MTK_EVENT_TSO_FAIL]);
-	seq_printf(seq, " TSO Illegal:	%d\n",
-		   reset_event.count[MTK_EVENT_TSO_ILLEGAL]);
-	seq_printf(seq, " TSO Align:	%d\n",
-		   reset_event.count[MTK_EVENT_TSO_ALIGN]);
-	seq_printf(seq, " RFIFO OV:	%d\n",
-		   reset_event.count[MTK_EVENT_RFIFO_OV]);
-	seq_printf(seq, " RFIFO UF:	%d\n",
-		   reset_event.count[MTK_EVENT_RFIFO_UF]);
-	seq_printf(seq, " Force:		%d\n",
-		   reset_event.count[MTK_EVENT_FORCE]);
-	seq_printf(seq, "----------------------------\n");
-	seq_printf(seq, " Warm Cnt:	%d\n",
-		   reset_event.count[MTK_EVENT_WARM_CNT]);
-	seq_printf(seq, " Cold Cnt:	%d\n",
-		   reset_event.count[MTK_EVENT_COLD_CNT]);
-	seq_printf(seq, " Total Cnt:	%d\n",
-		   reset_event.count[MTK_EVENT_TOTAL_CNT]);
-
-	return 0;
-}
-
-static int reset_event_open(struct inode *inode, struct file *file)
-{
-	return single_open(file, reset_event_read, 0);
-}
-
-ssize_t reset_event_write(struct file *file, const char __user *buffer,
-			  size_t count, loff_t *data)
-{
-	struct mtk_eth *eth = g_eth;
-	struct mtk_reset_event *reset_event = &eth->reset_event;
-
-	memset(reset_event, 0, sizeof(struct mtk_reset_event));
-	pr_info("MTK reset event counter is cleared !\n");
-
-	return count;
-}
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 6, 0)
-static const struct file_operations reset_event_fops = {
-	.owner = THIS_MODULE,
-	.open = reset_event_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.write = reset_event_write,
-	.release = single_release
-};
-#else
-static const struct proc_ops reset_event_fops = {
-	.proc_open = reset_event_open,
-	.proc_read = seq_read,
-	.proc_lseek = seq_lseek,
-	.proc_write = reset_event_write,
-	.proc_release = single_release
-};
-#endif
 
 struct proc_dir_entry *proc_reg_dir;
-static struct proc_dir_entry *proc_esw_cnt, *proc_dbg_regs, *proc_reset_event;
+static struct proc_dir_entry *proc_esw_cnt, *proc_dbg_regs;
 
 int debug_proc_init(struct mtk_eth *eth)
 {
@@ -1641,11 +1469,6 @@ int debug_proc_init(struct mtk_eth *eth)
 	    proc_create(PROCREG_TXRING, 0, proc_reg_dir, &tx_ring_fops);
 	if (!proc_tx_ring)
 		pr_notice("!! FAIL to create %s PROC !!\n", PROCREG_TXRING);
-
-	proc_hwtx_ring =
-	    proc_create(PROCREG_HWTXRING, 0, proc_reg_dir, &hwtx_ring_fops);
-	if (!proc_hwtx_ring)
-		pr_notice("!! FAIL to create %s PROC !!\n", PROCREG_HWTXRING);
 
 	proc_rx_ring =
 	    proc_create(PROCREG_RXRING, 0, proc_reg_dir, &rx_ring_fops);
@@ -1677,11 +1500,6 @@ int debug_proc_init(struct mtk_eth *eth)
 				PROCREG_HW_LRO_AUTO_TLB);
 	}
 
-	proc_reset_event =
-	    proc_create(PROCREG_RESET_EVENT, 0, proc_reg_dir, &reset_event_fops);
-	if (!proc_reset_event)
-		pr_notice("!! FAIL to create %s PROC !!\n", PROCREG_RESET_EVENT);
-
 	return 0;
 }
 
@@ -1689,8 +1507,6 @@ void debug_proc_exit(void)
 {
 	if (proc_tx_ring)
 		remove_proc_entry(PROCREG_TXRING, proc_reg_dir);
-	if (proc_hwtx_ring)
-		remove_proc_entry(PROCREG_HWTXRING, proc_reg_dir);
 	if (proc_rx_ring)
 		remove_proc_entry(PROCREG_RXRING, proc_reg_dir);
 
@@ -1710,7 +1526,5 @@ void debug_proc_exit(void)
 		if (proc_hw_lro_auto_tlb)
 			remove_proc_entry(PROCREG_HW_LRO_AUTO_TLB, proc_reg_dir);
 	}
-
-	if (proc_reset_event)
-		remove_proc_entry(PROCREG_RESET_EVENT, proc_reg_dir);
 }
+

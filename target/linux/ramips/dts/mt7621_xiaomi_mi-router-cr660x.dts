@@ -88,7 +88,7 @@
 		};
 
 		factory: partition@100000 {
-			label = "Factory";
+			label = "factory";
 			reg = <0x100000 0x80000>;
 			read-only;
 		};
@@ -139,8 +139,39 @@
 };
 
 &gsw {
+	mediatek,mdio = <&mdio>;
 	mediatek,portmap = "llllw";
+	mediatek,mcm;
+	mt7530,direct-phy-access;
 	status = "okay";
+
+	resets = <&rstctrl 2>;
+	reset-names = "mcm";
+
+	port5: port@5 {
+		compatible = "mediatek,mt753x-port";
+		reg = <5>;
+		phy-mode = "rgmii";
+		fixed-link {
+			speed = <1000>;
+			full-duplex;
+		};
+	};
+
+	port6: port@6 {
+		compatible = "mediatek,mt753x-port";
+		reg = <6>;
+		phy-mode = "rgmii";
+		fixed-link {
+			speed = <1000>;
+			full-duplex;
+		};
+	};
+
+	mdio-bus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
 };
 
 &hnat {

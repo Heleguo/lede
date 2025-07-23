@@ -22,6 +22,9 @@ char* mtk_reset_event_name[32] = {
 	[MTK_EVENT_RFIFO_UF]	= "RFIFO UF",
 };
 
+static int mtk_wifi_num = 0;
+static int mtk_rest_cnt = 0;
+
 void mtk_reset_event_update(struct mtk_eth *eth, u32 id)
 {
 	struct mtk_reset_event *reset_event = &eth->reset_event;
@@ -144,8 +147,7 @@ irqreturn_t mtk_handle_fe_irq(int irq, void *_eth)
 		val = ffs((unsigned int)status) - 1;
 		status &= ~(1 << val);
 
-		if ((val == MTK_EVENT_FQ_EMPTY) ||
-		    (val == MTK_EVENT_TSO_FAIL) ||
+		if ((val == MTK_EVENT_TSO_FAIL) ||
 		    (val == MTK_EVENT_TSO_ILLEGAL) ||
 		    (val == MTK_EVENT_TSO_ALIGN) ||
 		    (val == MTK_EVENT_RFIFO_OV) ||
@@ -321,12 +323,14 @@ void mtk_prepare_reset_fe(struct mtk_eth *eth)
 	mtk_w32(eth, val & ~(MTK_TX_DMA_EN), MTK_QDMA_GLO_CFG);
 
 	/* Power down sgmii */
-	regmap_read(eth->sgmii->regmap[0], SGMSYS_QPHY_PWR_STATE_CTRL, &val);
-	val |= SGMII_PHYA_PWD;
-	regmap_write(eth->sgmii->regmap[0], SGMSYS_QPHY_PWR_STATE_CTRL, val);
-	regmap_read(eth->sgmii->regmap[1], SGMSYS_QPHY_PWR_STATE_CTRL, &val);
-	val |= SGMII_PHYA_PWD;
-	regmap_write(eth->sgmii->regmap[1], SGMSYS_QPHY_PWR_STATE_CTRL, val);
+	for (i = 0; i < MTK_MAX_DEVS; i++) {
+		if (!eth->sgmii->regmap[i])
+			continue;
+
+		regmap_read(eth->sgmii->regmap[i], SGMSYS_QPHY_PWR_STATE_CTRL, &val);
+		val |= SGMII_PHYA_PWD;
+		regmap_write(eth->sgmii->regmap[i], SGMSYS_QPHY_PWR_STATE_CTRL, val);
+	}
 
 	/* Force link down GMAC */
 	val = mtk_r32(eth, MTK_MAC_MCR(0));
@@ -391,7 +395,19 @@ static int mtk_eth_netdevice_event(struct notifier_block *unused,
 {
 	switch (event) {
 	case MTK_WIFI_RESET_DONE:
-		complete(&wait_ser_done);
+		mtk_rest_cnt--;
+		if(!mtk_rest_cnt) {
+			complete(&wait_ser_done);
+			mtk_rest_cnt = mtk_wifi_num;
+		}
+		break;
+	case MTK_WIFI_CHIP_ONLINE:
+		mtk_wifi_num++;
+		mtk_rest_cnt = mtk_wifi_num;
+		break;
+	case MTK_WIFI_CHIP_OFFLINE:
+		mtk_wifi_num--;
+		mtk_rest_cnt = mtk_wifi_num;
 		break;
 	default:
 		break;
