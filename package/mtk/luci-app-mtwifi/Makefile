@@ -6,6 +6,7 @@ PKG_MAINTAINER:=Hua Shao <nossiac@163.com>
 
 LUCI_TITLE:=LuCI support for mt wifi driver
 LUCI_PKGARCH:=all
+LUCI_DEPENDS:=@TARGET_ramips +wireless-tools +mtkhqos_util
 PKG_VERSION:=1
 PKG_RELEASE:=8
 
