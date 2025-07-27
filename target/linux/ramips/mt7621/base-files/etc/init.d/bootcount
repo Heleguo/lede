@@ -3,6 +3,12 @@
 START=99
 
 boot() {
+        ifconfig apclix0 up
+	ifconfig rax0 up
+	ifconfig apcli0 up
+	ifconfig ra0 up
+	/etc/init.d/apcli.sh start
+	mtkwifi reload
 	case $(board_name) in
 	alfa-network,quad-e4g)
 		[ -n "$(fw_printenv bootcount bootchanged 2>/dev/null)" ] &&\
