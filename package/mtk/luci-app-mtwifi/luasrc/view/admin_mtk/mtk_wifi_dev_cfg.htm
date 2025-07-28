@@ -32,7 +32,7 @@ local cfgs = mtkwifi.load_profile(dev.profile)
 
 <div id="loading" style="margin-top: 1em; display: none;">
 <img src="<%=resource%>/icons/loading.gif" alt="<%:Loading%>" style="vertical-align:e;" />
-    &nbsp;&nbsp;&nbsp; Please waiting while the page is loading......
+    &nbsp;&nbsp;&nbsp; 界面加载中，请稍等......
 </div>
 
 <form method="post" name="cbi" action="<%=luci.dispatcher.build_url("admin", "network", "wifi", "dev_cfg", devname)%>" enctype="multipart/form-data" onreset="return cbi_validate_reset(this)" onsubmit="return cbi_validate_form(this, 'Some fields are invalid, cannot save values!')" autocomplete="false">
