@@ -1844,7 +1844,7 @@ define Device/xiaomi_mi-router-3g-v2
   DEVICE_VENDOR := Xiaomi
   DEVICE_MODEL := Mi Router 3G
   DEVICE_VARIANT := v2
-  DEVICE_PACKAGES := kmod-mt7603 kmod-mt76x2
+  DEVICE_PACKAGES := kmod-mt7603e kmod-mt76x2e mt_wifi luci-app-mtwifi wireless-tools -wpad-openssl
   SUPPORTED_DEVICES += xiaomi,mir3g-v2
 endef
 TARGET_DEVICES += xiaomi_mi-router-3g-v2

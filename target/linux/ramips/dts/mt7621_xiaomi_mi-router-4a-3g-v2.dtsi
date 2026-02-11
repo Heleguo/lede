@@ -11,7 +11,7 @@
 		led-failsafe = &led_status_yellow;
 		led-running = &led_status_blue;
 		led-upgrade = &led_status_yellow;
-		label-mac-device = &wan;
+		label-mac-device = &gmac1;
 	};
 
 	chosen {
@@ -49,8 +49,7 @@
 	flash@0 {
 		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <50000000>;
-		m25p,fast-read;
+		spi-max-frequency = <10000000>;
 
 		partitions {
 			compatible = "fixed-partitions";
@@ -69,44 +68,21 @@
 				read-only;
 			};
 
-			partition@40000 {
-				label = "Bdata";
+			factory: partition@40000 {
+				label = "factory";
 				reg = <0x40000 0x10000>;
 				read-only;
 			};
 
-			factory: partition@50000 {
-				label = "factory";
-				reg = <0x50000 0x10000>;
-				read-only;
-			};
-
-			partition@60000 {
-				label = "crash";
-				reg = <0x60000 0x10000>;
-				read-only;
-			};
-
-			partition@70000 {
-				label = "cfg_bak";
-				reg = <0x70000 0x10000>;
-				read-only;
-			};
-
-			partition@80000 {
-				label = "overlay";
-				reg = <0x80000 0x100000>;
-				read-only;
-			};
-
-			firmware: partition@180000 {
+			partition@50000 {
 				compatible = "denx,uimage";
 				label = "firmware";
-				reg = <0x180000 0xe80000>;
+				reg = <0x50000 0xfb0000>;
 			};
 		};
 	};
 };
+
 
 &pcie {
 	status = "okay";
@@ -135,25 +111,38 @@
 	nvmem-cell-names = "mac-address";
 };
 
-&switch0 {
-	ports {
-		port@2 {
-			status = "okay";
-			label = "lan2";
-		};
+&gmac1 {
+	status = "okay";
+	label = "wan";
+	phy-handle = <&ethphy4>;
 
-		port@3 {
-			status = "okay";
-			label = "lan1";
-		};
+	nvmem-cells = <&macaddr_factory_e006>;
+	nvmem-cell-names = "mac-address";
+};
 
-		wan: port@4 {
-			status = "okay";
-			label = "wan";
-			nvmem-cells = <&macaddr_factory_e006>;
-			nvmem-cell-names = "mac-address";
-		};
+&mdio {
+	ethphy4: ethernet-phy@4 {
+		reg = <4>;
 	};
+};
+
+
+&gsw {
+	mediatek,portmap = "llw";
+	status = "okay";
+};
+
+&hnat {
+	mtketh-wan = "eth1";
+	mtketh-ppd = "eth0";
+	mtketh-lan = "eth0";
+	ext-devices = "wlan0","wlan1","rax0","ra0", "rai0","apclii0","apclix0", "apcli0";
+	mtketh-max-gmac = <2>;
+	/delete-property/ mtkdsa-wan-port;
+};
+
+&switch0 {
+	status = "disabled";
 };
 
 &state_default {

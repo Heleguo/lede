@@ -45,9 +45,10 @@ ramips_setup_interfaces()
 	xiaomi,mi-router-3g-v2|\
 	xiaomi,mi-router-4|\
 	xiaomi,mi-router-4a-gigabit)
-		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
-		;;
-	beeline,smartbox-turbo-plus)
+		ucidef_add_switch "switch0" \
+			"2:lan" "3:lan" "4:wan" "6u@eth0" "5u@eth1"
+		ucidef_set_interfaces_lan_wan "eth0 rai0 ra0" "eth1"
+		;;	beeline,smartbox-turbo-plus)
 		ucidef_add_switch "switch0" \
 			"1:lan:1" "2:lan:2" "3:lan:3" "4:lan:4" "0:wan" "6@eth0"
 		;;
