@@ -26,7 +26,7 @@ define Build/emmc-common
 	$(CP) $(IMAGE_KERNEL) $(KDIR)/boot.fat/uImage
 	mcopy -i $@.boot $(KDIR)/boot.fat/uImage ::
 
-	$(foreach dts,$(shell echo $(DEVICE_DTS)),$(CP) $(DTS_DIR)/$(dts).dtb $(KDIR)/boot.fat/dtb;)
+	$(foreach dts,$(shell echo $(DEVICE_DTS)),$(CP) $(if $(DEVICE_DTS_DIR),$(DEVICE_DTS_DIR),$(DTS_DIR))/$(dts).dtb $(KDIR)/boot.fat/dtb;)
 	mcopy -i $@.boot $(KDIR)/boot.fat/dtb ::
 
 	$(RM) -rf $(KDIR)/boot.fat
@@ -36,6 +36,16 @@ define Build/emmc-common
 endef
 
 ### Image scripts ###
+
+define Build/boot-aml
+	# This creates a new folder copies the dtb (as amlogic.dtb)
+	# and the kernel image (as kernel.img)
+	rm -fR $@.boot
+	mkdir -p $@.boot
+
+	$(CP) $(KDIR)/image-$(firstword $(DEVICE_DTS)).dtb $@.boot/amlogic.dtb
+	$(CP) $(IMAGE_KERNEL) $@.boot/kernel.img
+endef
 
 define Build/boot-common
 	# This creates a new folder copies the dtb (as amlogic.dtb) 

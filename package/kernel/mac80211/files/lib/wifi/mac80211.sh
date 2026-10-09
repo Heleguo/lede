@@ -356,7 +356,6 @@ mac80211_emit_detect() {
 
 	case "$band" in
 		6g)
-			[ -n "$default_country" ] || country="00"
 			[ -n "$encryption" ] || encryption="owe"
 		;;
 		*)
@@ -418,6 +417,12 @@ detect_mac80211() {
 		dev="${_dev##*/}"
 		path="$(iwinfo nl80211 path "$dev")"
 		check_macaddr="$(cat /sys/class/ieee80211/${dev}/macaddress)"
+
+		unset \
+			band_2g_channel band_2g_htmode \
+			band_5g_channel band_5g_htmode \
+			band_6g_channel band_6g_htmode \
+			band_60g_channel band_60g_htmode
 
 		band_list=""
 		band_caps="$(__get_band_capabilities "$dev")"

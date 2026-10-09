@@ -14,6 +14,11 @@ PKG_CONFIG_DEPENDS += \
 	CONFIG_ATH10K_LEDS \
 	CONFIG_ATH10K_THERMAL \
 	CONFIG_ATH11K_THERMAL \
+	CONFIG_ATH12K_THERMAL \
+	CONFIG_ATH11K_MEM_PROFILE_1G \
+	CONFIG_ATH11K_MEM_PROFILE_512M \
+	CONFIG_ATH11K_MEM_PROFILE_256M \
+	CONFIG_ATH11K_NSS_SUPPORT \
 	CONFIG_ATH_USER_REGD
 
 ifdef CONFIG_PACKAGE_MAC80211_DEBUGFS
@@ -60,6 +65,11 @@ config-$(CONFIG_ATH9K_UBNTHSR) += ATH9K_UBNTHSR
 config-$(CONFIG_ATH10K_LEDS) += ATH10K_LEDS
 config-$(CONFIG_ATH10K_THERMAL) += ATH10K_THERMAL
 config-$(CONFIG_ATH11K_THERMAL) += ATH11K_THERMAL
+config-$(CONFIG_ATH12K_THERMAL) += ATH12K_THERMAL
+config-$(CONFIG_ATH11K_MEM_PROFILE_1G) += ATH11K_MEM_PROFILE_1G
+config-$(CONFIG_ATH11K_MEM_PROFILE_512M) += ATH11K_MEM_PROFILE_512M
+config-$(CONFIG_ATH11K_MEM_PROFILE_256M) += ATH11K_MEM_PROFILE_256M
+config-$(CONFIG_ATH11K_NSS_SUPPORT) += ATH11K_NSS_SUPPORT
 
 config-$(call config_package,ath9k-htc) += ATH9K_HTC
 config-$(call config_package,ath10k,regular) += ATH10K ATH10K_PCI
@@ -173,7 +183,7 @@ define KernelPackage/ath6kl
   TITLE:=Atheros FullMAC wireless devices (common code for ath6kl_sdio and ath6kl_usb)
   URL:=https://wireless.wiki.kernel.org/en/users/drivers/ath6kl
   HIDDEN:=1
-  DEPENDS+= +kmod-ath +@DRIVER_11N_SUPPORT
+  DEPENDS+= +kmod-ath
   FILES:= $(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath6kl/ath6kl_core.ko
 endef
 
@@ -344,7 +354,12 @@ define KernelPackage/ath11k
   +kmod-crypto-michael-mic +ATH11K_THERMAL:kmod-hwmon-core \
   +ATH11K_THERMAL:kmod-thermal +kmod-qcom-qmi-helpers
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath11k/ath11k.ko
+ifdef CONFIG_ATH11K_NSS_SUPPORT
+  AUTOLOAD:=$(call AutoProbe,ath11k)
+  MODPARAMS.ath11k:=nss_offload=1 frame_mode=2
+else
   MODPARAMS.ath11k:=frame_mode=2
+endif
 endef
 
 define KernelPackage/ath11k/description
@@ -358,6 +373,35 @@ define KernelPackage/ath11k/config
                bool "Enable thermal sensors and throttling support"
                depends on PACKAGE_kmod-ath11k
                default y if TARGET_qualcommax
+
+       config ATH11K_NSS_SUPPORT
+               bool "Enable NSS WiFi offload"
+               depends on PACKAGE_kmod-ath11k
+               depends on PACKAGE_MAC80211_NSS_SUPPORT
+               depends on TARGET_qualcommax_ipq60xx || TARGET_qualcommax_ipq807x
+               select ATH11K_MEM_PROFILE_512M
+               default y
+               help
+                 Say Y to enable ath11k NSS WiFi offload support on IPQ60xx/IPQ807x.
+
+       choice
+               prompt "ath11k memory profile"
+               depends on PACKAGE_kmod-ath11k
+               default ATH11K_MEM_PROFILE_512M if TARGET_qualcommax_ipq60xx || TARGET_qualcommax_ipq807x
+               default ATH11K_MEM_PROFILE_1G
+               help
+                 Select the ath11k memory profile matching the board RAM size.
+
+       config ATH11K_MEM_PROFILE_1G
+               bool "Use 1GB memory profile"
+
+       config ATH11K_MEM_PROFILE_512M
+               bool "Use 512MB memory profile"
+
+       config ATH11K_MEM_PROFILE_256M
+               bool "Use 256MB memory profile"
+
+       endchoice
 
 endef
 
@@ -395,7 +439,8 @@ define KernelPackage/ath12k
   URL:=https://wireless.wiki.kernel.org/en/users/drivers/ath12k
   DEPENDS+= @PCI_SUPPORT +kmod-ath +kmod-crypto-michael-mic \
   +kmod-qrtr-mhi +kmod-qcom-qmi-helpers +@DRIVER_11AC_SUPPORT \
-  +@DRIVER_11AX_SUPPORT +@DRIVER_11BE_SUPPORT
+  +@DRIVER_11AX_SUPPORT +@DRIVER_11BE_SUPPORT \
+  +ATH12K_THERMAL:kmod-hwmon-core +ATH12K_THERMAL:kmod-thermal
   FILES:=$(PKG_BUILD_DIR)/drivers/net/wireless/ath/ath12k/ath12k.ko
   AUTOLOAD:=$(call AutoProbe,ath12k)
 endef
@@ -403,6 +448,14 @@ endef
 define KernelPackage/ath12k/description
 This module adds support for Qualcomm Technologies 802.11be family of
 chipsets with PCI bus.
+endef
+
+define KernelPackage/ath12k/config
+
+       config ATH12K_THERMAL
+               bool "Enable ath12k thermal sensor support"
+               depends on PACKAGE_kmod-ath12k
+
 endef
 
 define KernelPackage/carl9170

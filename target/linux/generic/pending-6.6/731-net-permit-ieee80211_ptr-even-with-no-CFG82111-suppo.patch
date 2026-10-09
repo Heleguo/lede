@@ -10,14 +10,9 @@ the kernel dynamically.
 
 Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 ---
- include/linux/netdevice.h       | 2 +-
- net/batman-adv/hard-interface.c | 2 +-
- net/wireless/Kconfig            | 4 ++++
- 3 files changed, 6 insertions(+), 2 deletions(-)
-
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -2243,7 +2243,7 @@ struct net_device {
+@@ -2266,7 +2266,7 @@ struct net_device {
  #if IS_ENABLED(CONFIG_AX25)
  	struct ax25_dev	__rcu	*ax25_ptr;
  #endif

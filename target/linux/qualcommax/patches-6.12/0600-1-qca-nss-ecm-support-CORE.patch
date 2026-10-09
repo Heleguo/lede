@@ -81,7 +81,7 @@
  	return false;
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -2912,6 +2912,10 @@ enum netdev_cmd {
+@@ -2953,6 +2953,10 @@ enum netdev_cmd {
  	NETDEV_OFFLOAD_XSTATS_REPORT_USED,
  	NETDEV_OFFLOAD_XSTATS_REPORT_DELTA,
  	NETDEV_XDP_FEAT_CHANGE,
@@ -150,7 +150,7 @@
  void fib_del_ifaddr(struct in_ifaddr *, struct in_ifaddr *);
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -2311,4 +2311,6 @@ void br_do_suppress_nd(struct sk_buff *s
+@@ -2317,4 +2317,6 @@ void br_do_suppress_nd(struct sk_buff *s
  		       u16 vid, struct net_bridge_port *p, struct nd_msg *msg);
  struct nd_msg *br_is_nd_neigh_msg(struct sk_buff *skb, struct nd_msg *m);
  bool br_is_neigh_suppress_enabled(const struct net_bridge_port *p, u16 vid);
@@ -253,7 +253,7 @@
  	skb = nlmsg_new(fdb_nlmsg_size(), GFP_ATOMIC);
  	if (skb == NULL)
  		goto errout;
-@@ -541,6 +574,22 @@ out:
+@@ -542,6 +575,22 @@ out:
  	spin_unlock_bh(&br->hash_lock);
  }
  
@@ -276,7 +276,7 @@
  void br_fdb_cleanup(struct work_struct *work)
  {
  	struct net_bridge *br = container_of(work, struct net_bridge,
-@@ -549,6 +598,7 @@ void br_fdb_cleanup(struct work_struct *
+@@ -550,6 +599,7 @@ void br_fdb_cleanup(struct work_struct *
  	unsigned long delay = hold_time(br);
  	unsigned long work_delay = delay;
  	unsigned long now = jiffies;
@@ -284,7 +284,7 @@
  
  	/* this part is tricky, in order to avoid blocking learning and
  	 * consequently forwarding, we rely on rcu to delete objects with
-@@ -575,8 +625,15 @@ void br_fdb_cleanup(struct work_struct *
+@@ -576,8 +626,15 @@ void br_fdb_cleanup(struct work_struct *
  			work_delay = min(work_delay, this_timer - now);
  		} else {
  			spin_lock_bh(&br->hash_lock);
@@ -301,7 +301,7 @@
  			spin_unlock_bh(&br->hash_lock);
  		}
  	}
-@@ -938,6 +995,12 @@ void br_fdb_update(struct net_bridge *br
+@@ -939,6 +996,12 @@ void br_fdb_update(struct net_bridge *br
  				 */
  				if (unlikely(test_bit(BR_FDB_LOCKED, &fdb->flags)))
  					clear_bit(BR_FDB_LOCKED, &fdb->flags);
@@ -314,7 +314,7 @@
  			}
  
  			if (unlikely(test_bit(BR_FDB_ADDED_BY_USER, &flags))) {
-@@ -965,6 +1028,64 @@ void br_fdb_update(struct net_bridge *br
+@@ -966,6 +1029,64 @@ void br_fdb_update(struct net_bridge *br
  	}
  }
  
@@ -394,7 +394,7 @@
  /*
   * Determine initial path cost based on speed.
   * using recommendations from 802.1d standard
-@@ -698,6 +704,8 @@ int br_add_if(struct net_bridge *br, str
+@@ -701,6 +707,8 @@ int br_add_if(struct net_bridge *br, str
  
  	kobject_uevent(&p->kobj, KOBJ_ADD);
  
@@ -403,7 +403,7 @@
  	return 0;
  
  err6:
-@@ -733,6 +741,8 @@ int br_del_if(struct net_bridge *br, str
+@@ -736,6 +744,8 @@ int br_del_if(struct net_bridge *br, str
  	if (!p || p->br != br)
  		return -EINVAL;
  
@@ -412,7 +412,7 @@
  	/* Since more than one interface can be attached to a bridge,
  	 * there still maybe an alternate path for netconsole to use;
  	 * therefore there is no reason for a NETDEV_RELEASE event.
-@@ -798,3 +808,97 @@ bool br_port_flag_is_set(const struct ne
+@@ -801,3 +811,97 @@ bool br_port_flag_is_set(const struct ne
  	return p->flags & flag;
  }
  EXPORT_SYMBOL_GPL(br_port_flag_is_set);
@@ -614,7 +614,7 @@
  	fib_release_info(fa_to_delete->fa_info);
  	alias_free_mem_rcu(fa_to_delete);
  	return 0;
-@@ -2387,6 +2396,20 @@ void __init fib_trie_init(void)
+@@ -2391,6 +2400,20 @@ void __init fib_trie_init(void)
  					   0, SLAB_PANIC | SLAB_ACCOUNT, NULL);
  }
  
@@ -647,7 +647,7 @@
  		   const struct in6_addr *daddr)
 --- a/net/ipv6/route.c
 +++ b/net/ipv6/route.c
-@@ -196,6 +196,9 @@ static void rt6_uncached_list_flush_dev(
+@@ -197,6 +197,9 @@ static void rt6_uncached_list_flush_dev(
  	}
  }
  
@@ -657,7 +657,7 @@
  static inline const void *choose_neigh_daddr(const struct in6_addr *p,
  					     struct sk_buff *skb,
  					     const void *daddr)
-@@ -3927,6 +3930,10 @@ int ip6_route_add(struct fib6_config *cf
+@@ -3937,6 +3940,10 @@ int ip6_route_add(struct fib6_config *cf
  		return PTR_ERR(rt);
  
  	err = __ip6_ins_rt(rt, &cfg->fc_nlinfo, extack);
@@ -668,7 +668,7 @@
  	fib6_info_release(rt);
  
  	return err;
-@@ -3948,6 +3955,9 @@ static int __ip6_del_rt(struct fib6_info
+@@ -3958,6 +3965,9 @@ static int __ip6_del_rt(struct fib6_info
  	err = fib6_del(rt, info);
  	spin_unlock_bh(&table->tb6_lock);
  
@@ -678,7 +678,7 @@
  out:
  	fib6_info_release(rt);
  	return err;
-@@ -6423,6 +6433,20 @@ static int ip6_route_dev_notify(struct n
+@@ -6438,6 +6448,20 @@ static int ip6_route_dev_notify(struct n
  	return NOTIFY_OK;
  }
  
@@ -711,7 +711,7 @@
  	return "UNKNOWN_NETDEV_EVENT";
 --- a/net/ipv6/addrconf.c
 +++ b/net/ipv6/addrconf.c
-@@ -993,6 +993,7 @@ void inet6_ifa_finish_destroy(struct ine
+@@ -998,6 +998,7 @@ void inet6_ifa_finish_destroy(struct ine
  
  	kfree_rcu(ifp, rcu);
  }
@@ -779,7 +779,7 @@
  #endif /* _UAPI_LINUX_IN_H */
 --- a/net/netfilter/nf_conntrack_ecache.c
 +++ b/net/netfilter/nf_conntrack_ecache.c
-@@ -365,7 +365,7 @@ int nf_conntrack_register_notifier(struc
+@@ -367,7 +367,7 @@ int nf_conntrack_register_notifier(struc
  	mutex_lock(&nf_ct_ecache_mutex);
  	notify = rcu_dereference_protected(net->ct.nf_conntrack_event_cb,
  					   lockdep_is_held(&nf_ct_ecache_mutex));

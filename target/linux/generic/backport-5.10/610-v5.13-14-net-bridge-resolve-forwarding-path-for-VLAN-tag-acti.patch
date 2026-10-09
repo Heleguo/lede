@@ -15,7 +15,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -867,10 +867,20 @@ struct net_device_path {
+@@ -869,10 +869,20 @@ struct net_device_path {
  			u16		id;
  			__be16		proto;
  		} encap;
@@ -36,7 +36,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  
  struct net_device_path_stack {
  	int			num_paths;
-@@ -880,6 +890,12 @@ struct net_device_path_stack {
+@@ -882,6 +892,12 @@ struct net_device_path_stack {
  struct net_device_path_ctx {
  	const struct net_device *dev;
  	const u8		*daddr;
@@ -51,7 +51,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  enum tc_setup_type {
 --- a/net/8021q/vlan_dev.c
 +++ b/net/8021q/vlan_dev.c
-@@ -780,6 +780,12 @@ static int vlan_dev_fill_forward_path(st
+@@ -772,6 +772,12 @@ static int vlan_dev_fill_forward_path(st
  	path->encap.proto = vlan->vlan_proto;
  	path->dev = ctx->dev;
  	ctx->dev = vlan->real_dev;
@@ -66,7 +66,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  }
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -409,7 +409,10 @@ static int br_fill_forward_path(struct n
+@@ -414,7 +414,10 @@ static int br_fill_forward_path(struct n
  		return -1;
  
  	br = netdev_priv(ctx->dev);
@@ -78,7 +78,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  	if (!f || !f->dst)
  		return -1;
  
-@@ -417,10 +420,28 @@ static int br_fill_forward_path(struct n
+@@ -422,10 +425,28 @@ static int br_fill_forward_path(struct n
  	if (!dst)
  		return -1;
  
@@ -109,9 +109,9 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  
 --- a/net/bridge/br_private.h
 +++ b/net/bridge/br_private.h
-@@ -1093,6 +1093,13 @@ void br_vlan_notify(const struct net_bri
- bool br_vlan_can_enter_range(const struct net_bridge_vlan *v_curr,
- 			     const struct net_bridge_vlan *range_end);
+@@ -1096,6 +1096,13 @@ bool br_vlan_can_enter_range(const struc
+ 			     const struct net_bridge_vlan *range_end,
+ 			     u16 pvid);
  
 +void br_vlan_fill_forward_path_pvid(struct net_bridge *br,
 +				    struct net_device_path_ctx *ctx,
@@ -123,7 +123,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  static inline struct net_bridge_vlan_group *br_vlan_group(
  					const struct net_bridge *br)
  {
-@@ -1250,6 +1257,19 @@ static inline int nbp_get_num_vlan_infos
+@@ -1253,6 +1260,19 @@ static inline int nbp_get_num_vlan_infos
  {
  	return 0;
  }

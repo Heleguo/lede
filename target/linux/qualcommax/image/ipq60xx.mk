@@ -1,9 +1,24 @@
+DTS_DIR := $(DTS_DIR)/qcom
+
 define Device/EmmcImage
 	IMAGES += factory.bin recovery.bin
-	IMAGE/factory.bin := append-kernel | pad-to 12288k | append-rootfs | append-metadata
-	IMAGE/recovery.bin := append-kernel | pad-to 6144k | append-rootfs | append-metadata
+	IMAGE/factory.bin := append-kernel | pad-to 6144k | append-rootfs | append-metadata
 	IMAGE/sysupgrade.bin/squashfs := append-rootfs | pad-to 64k | sysupgrade-tar rootfs=$$$$@ | append-metadata
 endef
+
+define Device/anysafe_e1
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := AnySafe
+	DEVICE_MODEL := E1
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_DTS := ipq6010-anysafe-e1
+	DEVICE_DTS_CONFIG := config@cp01-c3
+	DEVICE_PACKAGES := ath11k-firmware-qcn9074 ipq-wifi-anysafe_e1 \
+		kmod-ath11k-pci kmod-hwmon-pwmfan
+endef
+TARGET_DEVICES += anysafe_e1
 
 define Device/cmiot_ax18
 	$(call Device/FitImage)
@@ -16,6 +31,19 @@ define Device/cmiot_ax18
 	SOC := ipq6000
 endef
 TARGET_DEVICES += cmiot_ax18
+
+define Device/zn_m2
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := ZN
+	DEVICE_MODEL := M2
+	DEVICE_DTS := ipq6018-m2
+	DEVICE_DTS_CONFIG := config@cp03-c1
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	SOC := ipq6018
+endef
+TARGET_DEVICES += zn_m2
 
 define Device/dptech_ap3000-2c
 	$(call Device/FitImage)
@@ -95,6 +123,25 @@ define Device/jdcloud_re-ss-01
 endef
 TARGET_DEVICES += jdcloud_re-ss-01
 
+define Device/link_nn6000-v1
+	$(call Device/FitImage)
+	$(call Device/EmmcImage)
+	DEVICE_VENDOR := Link
+	DEVICE_MODEL := NN6000 v1
+	SOC := ipq6000
+	KERNEL_SIZE := 6144k
+	DEVICE_DTS_CONFIG := config@cp03-c1
+	DEVICE_PACKAGES := ipq-wifi-link_nn6000 kmod-fs-f2fs f2fs-tools
+	IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-rootfs | append-metadata
+endef
+TARGET_DEVICES += link_nn6000-v1
+
+define Device/link_nn6000-v2
+	$(Device/link_nn6000-v1)
+	DEVICE_MODEL := NN6000 v2
+endef
+TARGET_DEVICES += link_nn6000-v2
+
 define Device/linksys_mr7350
 	$(call Device/FitImage)
 	DEVICE_VENDOR := Linksys
@@ -111,6 +158,19 @@ define Device/linksys_mr7350
 		kmod-leds-pca963x kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += linksys_mr7350
+
+define Device/philips_ly1800
+	$(call Device/FitImage)
+	$(call Device/EmmcImage)
+	DEVICE_VENDOR := Philips
+	DEVICE_MODEL := LY1800
+	SOC := ipq6010
+	BLOCKSIZE := 64k
+	KERNEL_SIZE := 6144k
+	DEVICE_DTS_CONFIG := config@cp01-c1
+	DEVICE_PACKAGES := ipq-wifi-philips_ly1800
+endef
+TARGET_DEVICES += philips_ly1800
 
 define Device/qihoo_360v6
 	$(call Device/FitImage)
@@ -132,6 +192,7 @@ define Device/redmi_ax5-jdcloud
 	DEVICE_MODEL := AX5 JDCloud
 	DEVICE_DTS_CONFIG := config@cp03-c1
 	SOC := ipq6000
+	SUPPORTED_DEVICES += xiaomi,redmi-ax5-jdcloud
 	DEVICE_PACKAGES := ipq-wifi-redmi_ax5-jdcloud
 endef
 TARGET_DEVICES += redmi_ax5-jdcloud

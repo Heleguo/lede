@@ -24,7 +24,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/net/bridge/br_forward.c
 +++ b/net/bridge/br_forward.c
-@@ -199,6 +199,7 @@ out:
+@@ -200,6 +200,7 @@ out:
  void br_flood(struct net_bridge *br, struct sk_buff *skb,
  	      enum br_pkt_type pkt_type, bool local_rcv, bool local_orig)
  {
@@ -32,7 +32,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  	struct net_bridge_port *prev = NULL;
  	struct net_bridge_port *p;
  
-@@ -214,6 +215,10 @@ void br_flood(struct net_bridge *br, str
+@@ -215,6 +216,10 @@ void br_flood(struct net_bridge *br, str
  		case BR_PKT_MULTICAST:
  			if (!(p->flags & BR_MCAST_FLOOD) && skb->dev != br->dev)
  				continue;
@@ -74,7 +74,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  };
 --- a/net/bridge/br_stp_bpdu.c
 +++ b/net/bridge/br_stp_bpdu.c
-@@ -80,7 +80,8 @@ void br_send_config_bpdu(struct net_brid
+@@ -83,7 +83,8 @@ void br_send_config_bpdu(struct net_brid
  {
  	unsigned char buf[35];
  
@@ -84,7 +84,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		return;
  
  	buf[0] = 0;
-@@ -127,7 +128,8 @@ void br_send_tcn_bpdu(struct net_bridge_
+@@ -130,7 +131,8 @@ void br_send_tcn_bpdu(struct net_bridge_
  {
  	unsigned char buf[4];
  
@@ -94,7 +94,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  		return;
  
  	buf[0] = 0;
-@@ -172,6 +174,9 @@ void br_stp_rcv(const struct stp_proto *
+@@ -175,6 +177,9 @@ void br_stp_rcv(const struct stp_proto *
  	if (!(br->dev->flags & IFF_UP))
  		goto out;
  
@@ -161,7 +161,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  struct rtnl_link {
  	rtnl_doit_func		doit;
-@@ -4739,7 +4739,9 @@ int ndo_dflt_bridge_getlink(struct sk_bu
+@@ -4799,7 +4799,9 @@ int ndo_dflt_bridge_getlink(struct sk_bu
  	    brport_nla_put_flag(skb, flags, mask,
  				IFLA_BRPORT_MCAST_FLOOD, BR_MCAST_FLOOD) ||
  	    brport_nla_put_flag(skb, flags, mask,

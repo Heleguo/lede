@@ -12,7 +12,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 
 --- a/include/linux/netdevice.h
 +++ b/include/linux/netdevice.h
-@@ -875,6 +875,7 @@ struct net_device_path {
+@@ -877,6 +877,7 @@ struct net_device_path {
  				DEV_PATH_BR_VLAN_KEEP,
  				DEV_PATH_BR_VLAN_TAG,
  				DEV_PATH_BR_VLAN_UNTAG,
@@ -35,7 +35,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  	u16				mtu;
  	union {
  		struct dst_entry	*dst_cache;
-@@ -184,7 +185,8 @@ struct nf_flow_route {
+@@ -185,7 +186,8 @@ struct nf_flow_route {
  				u16		id;
  				__be16		proto;
  			} encap[NF_FLOW_TABLE_ENCAP_MAX];
@@ -47,7 +47,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  			u32			ifindex;
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -435,6 +435,7 @@ static int br_fill_forward_path(struct n
+@@ -440,6 +440,7 @@ static int br_fill_forward_path(struct n
  		ctx->vlan[ctx->num_vlans].proto = path->bridge.vlan_proto;
  		ctx->num_vlans++;
  		break;

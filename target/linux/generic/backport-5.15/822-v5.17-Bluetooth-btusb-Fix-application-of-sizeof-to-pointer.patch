@@ -13,12 +13,9 @@ Reported-by: Zeal Robot <zealci@zte.com.cn>
 Signed-off-by: David Yang <davidcomponentone@gmail.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 ---
- drivers/bluetooth/btusb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
 --- a/drivers/bluetooth/btusb.c
 +++ b/drivers/bluetooth/btusb.c
-@@ -2294,7 +2294,7 @@ static int btusb_set_bdaddr_mtk(struct h
+@@ -2329,7 +2329,7 @@ static int btusb_set_bdaddr_mtk(struct h
  	struct sk_buff *skb;
  	long ret;
  

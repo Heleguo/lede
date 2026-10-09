@@ -46,6 +46,8 @@
 };
 
 &i2c6 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c6m0_xfer>;
 	status = "okay";
 };
 
@@ -92,6 +94,6 @@
 
 &usb_host0_xhci {
 	maximum-speed = "high-speed";
-	phys = <&usb2phy0_otg>;
+	phys = <&usb2phy_otg>;
 	phy-names = "usb2-phy";
 };

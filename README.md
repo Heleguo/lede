@@ -28,7 +28,7 @@ CR660X
    libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libpython3-dev \
    libreadline-dev libssl-dev libtool llvm lrzsz libnsl-dev ninja-build p7zip p7zip-full patch pkgconf \
    python3 python3-pyelftools python3-setuptools qemu-utils rsync scons squashfs-tools subversion \
-   swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+   swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd xz-utils zlib1g-dev
    ```
 
 3. 下载源代码，更新 feeds 并选择配置
@@ -102,7 +102,13 @@ PS > git clone https://github.com/coolsnowwolf/lede <your_local_lede_path>
 
 ### macOS 原生系统进行编译
 
-1. 在 AppStore 中安装 Xcode
+1. 安装 macOS Command Line Tools（无需安装完整 Xcode）：
+
+   ```bash
+   xcode-select --install
+   ```
+
+   如果系统已安装 Xcode，可跳过此步骤。
 
 2. 安装 Homebrew：
 

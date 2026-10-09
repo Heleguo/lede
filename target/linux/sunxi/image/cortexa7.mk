@@ -28,7 +28,7 @@ define Device/friendlyarm_nanopi-m1-plus
   DEVICE_VENDOR := FriendlyARM
   DEVICE_MODEL := NanoPi M1 Plus
   DEVICE_PACKAGES:=kmod-leds-gpio kmod-brcmfmac \
-	cypress-firmware-43430-sdio wpad-basic-mbedtls
+	cypress-firmware-43430-sdio wpad-openssl
   SOC := sun8i-h3
 endef
 TARGET_DEVICES += friendlyarm_nanopi-m1-plus
@@ -46,7 +46,7 @@ define Device/friendlyarm_nanopi-neo-air
   DEVICE_VENDOR := FriendlyARM
   DEVICE_MODEL := NanoPi NEO Air
   DEVICE_PACKAGES := kmod-leds-gpio kmod-brcmfmac \
-	brcmfmac-firmware-43430a0-sdio wpad-basic-mbedtls
+	brcmfmac-firmware-43430a0-sdio wpad-openssl
   SOC := sun8i-h3
 endef
 TARGET_DEVICES += friendlyarm_nanopi-neo-air
@@ -56,7 +56,7 @@ define Device/friendlyarm_nanopi-r1
   DEVICE_VENDOR := FriendlyARM
   DEVICE_MODEL := NanoPi R1
   DEVICE_PACKAGES := kmod-usb-net-rtl8152 kmod-leds-gpio \
-	kmod-brcmfmac cypress-firmware-43430-sdio wpad-basic-mbedtls
+	kmod-brcmfmac cypress-firmware-43430-sdio wpad-openssl
   SOC := sun8i-h3
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r1
@@ -76,7 +76,7 @@ define Device/lamobo_lamobo-r1
   DEVICE_MODEL := Lamobo R1
   DEVICE_ALT0_VENDOR := Bananapi
   DEVICE_ALT0_MODEL := BPi-R1
-  DEVICE_PACKAGES := kmod-ata-sunxi kmod-rtl8192cu wpad-basic-mbedtls
+  DEVICE_PACKAGES := kmod-ata-sunxi kmod-rtl8192cu wpad-openssl
   DEVICE_COMPAT_VERSION := 1.1
   DEVICE_COMPAT_MESSAGE := Config cannot be migrated from swconfig to DSA
   SOC := sun7i-a20
@@ -92,34 +92,45 @@ define Device/lemaker_bananapi
 endef
 TARGET_DEVICES += lemaker_bananapi
 
-define Device/sinovoip_bananapi-m2-berry
+define Device/pine64_pinecube
+  $(call Device/FitImageGzip)
+  DEVICE_VENDOR := Pine64
+  DEVICE_MODEL := PineCube
+  SOC := sun8i-s3
+  SUNXI_DTS := $$(SUNXI_DTS_DIR)$$(SOC)-pinecube
+endef
+TARGET_DEVICES += pine64_pinecube
+
+define Device/sinovoip_bpi-m2-berry
   $(call Device/FitImageGzip)
   DEVICE_VENDOR := Sinovoip
   DEVICE_MODEL := Banana Pi M2 Berry
   DEVICE_PACKAGES:=kmod-ata-sunxi kmod-brcmfmac \
-	cypress-firmware-43430-sdio wpad-basic-mbedtls
-  SUPPORTED_DEVICES:=lemaker,bananapi-m2-berry
+	cypress-firmware-43430-sdio wpad-openssl
+  SUPPORTED_DEVICES += lemaker,bananapi-m2-berry
   SOC := sun8i-v40
+  SUNXI_DTS := $$(SUNXI_DTS_DIR)$$(SOC)-bananapi-m2-berry
 endef
-TARGET_DEVICES += sinovoip_bananapi-m2-berry
+TARGET_DEVICES += sinovoip_bpi-m2-berry
 
-define Device/sinovoip_bananapi-m2-ultra
+define Device/sinovoip_bpi-m2-ultra
   $(call Device/FitImageGzip)
   DEVICE_VENDOR := Sinovoip
   DEVICE_MODEL := Banana Pi M2 Ultra
   DEVICE_PACKAGES:=kmod-ata-sunxi kmod-brcmfmac \
-	brcmfmac-firmware-43430a0-sdio wpad-basic-mbedtls
-  SUPPORTED_DEVICES:=lemaker,bananapi-m2-ultra
+	brcmfmac-firmware-43430a0-sdio wpad-openssl
+  SUPPORTED_DEVICES += lemaker,bananapi-m2-ultra
   SOC := sun8i-r40
+  SUNXI_DTS := $$(SUNXI_DTS_DIR)$$(SOC)-bananapi-m2-ultra
 endef
-TARGET_DEVICES += sinovoip_bananapi-m2-ultra
+TARGET_DEVICES += sinovoip_bpi-m2-ultra
 
 define Device/lemaker_bananapro
   $(call Device/FitImageGzip)
   DEVICE_VENDOR := LeMaker
   DEVICE_MODEL := Banana Pro
   DEVICE_PACKAGES:=kmod-rtc-sunxi kmod-ata-sunxi kmod-brcmfmac \
-	cypress-firmware-43362-sdio wpad-basic-mbedtls
+	cypress-firmware-43362-sdio wpad-openssl
   SOC := sun7i-a20
 endef
 TARGET_DEVICES += lemaker_bananapro
@@ -165,7 +176,7 @@ define Device/merrii_hummingbird
   $(call Device/FitImageGzip)
   DEVICE_VENDOR := Merrii
   DEVICE_MODEL := Hummingbird
-  DEVICE_PACKAGES:=kmod-brcmfmac cypress-firmware-43362-sdio wpad-basic-mbedtls
+  DEVICE_PACKAGES:=kmod-brcmfmac cypress-firmware-43362-sdio wpad-openssl
   SOC := sun6i-a31
 endef
 TARGET_DEVICES += merrii_hummingbird
@@ -212,40 +223,43 @@ define Device/roofull_beelink-x2
   DEVICE_VENDOR := Roofull
   DEVICE_MODEL := Beelink-X2
   DEVICE_PACKAGES:=kmod-leds-gpio kmod-gpio-button-hotplug \
-	kmod-brcmfmac cypress-firmware-43430-sdio wpad-basic-mbedtls
+	kmod-brcmfmac cypress-firmware-43430-sdio wpad-openssl
   SOC := sun8i-h3
 endef
 TARGET_DEVICES += roofull_beelink-x2
 
-define Device/sinovoip_bananapi-m2-plus
+define Device/sinovoip_bpi-m2-plus
   $(call Device/FitImageGzip)
   DEVICE_VENDOR := Sinovoip
   DEVICE_MODEL := Banana Pi M2+
   DEVICE_PACKAGES:=kmod-leds-gpio kmod-brcmfmac \
-	brcmfmac-firmware-43430a0-sdio wpad-basic-mbedtls
+	brcmfmac-firmware-43430a0-sdio wpad-openssl
   SOC := sun8i-h3
+  SUNXI_DTS := $$(SUNXI_DTS_DIR)$$(SOC)-bananapi-m2-plus
 endef
-TARGET_DEVICES += sinovoip_bananapi-m2-plus
+TARGET_DEVICES += sinovoip_bpi-m2-plus
 
-define Device/sinovoip_bananapi-m3
+define Device/sinovoip_bpi-m3
   $(call Device/FitImageGzip)
   DEVICE_VENDOR := Sinovoip
   DEVICE_MODEL := Banana Pi M3
   DEVICE_PACKAGES:=kmod-rtc-sunxi kmod-leds-gpio kmod-rtc-ac100 \
-	kmod-brcmfmac cypress-firmware-43430-sdio wpad-basic-mbedtls
+	kmod-brcmfmac cypress-firmware-43430-sdio wpad-openssl
   SOC := sun8i-a83t
+  SUNXI_DTS := $$(SUNXI_DTS_DIR)$$(SOC)-bananapi-m3
 endef
-TARGET_DEVICES += sinovoip_bananapi-m3
+TARGET_DEVICES += sinovoip_bpi-m3
 
-define Device/sinovoip_bananapi-p2-zero
+define Device/sinovoip_bpi-p2-zero
   $(call Device/FitImageGzip)
   DEVICE_VENDOR := Sinovoip
   DEVICE_MODEL := Banana Pi P2 Zero
   DEVICE_PACKAGES:=kmod-leds-gpio kmod-brcmfmac \
-	cypress-firmware-43430-sdio wpad-basic-mbedtls
+	cypress-firmware-43430-sdio wpad-openssl
   SOC := sun8i-h2-plus
+  SUNXI_DTS := $$(SUNXI_DTS_DIR)$$(SOC)-bananapi-p2-zero
 endef
-TARGET_DEVICES += sinovoip_bananapi-p2-zero
+TARGET_DEVICES += sinovoip_bpi-p2-zero
 
 define Device/xunlong_orangepi-one
   $(call Device/FitImageGzip)
@@ -309,3 +323,51 @@ define Device/xunlong_orangepi-2
   SOC := sun8i-h3
 endef
 TARGET_DEVICES += xunlong_orangepi-2
+
+define Device/widora_mangopi-mqdual-t113
+  $(call Device/FitImageGzip)
+  DEVICE_VENDOR := Widora
+  DEVICE_MODEL := MangoPi MQDual T113
+  DEVICE_PACKAGES:=kmod-rtc-sunxi
+  SOC := sun8i-t113s
+endef
+TARGET_DEVICES += widora_mangopi-mqdual-t113
+
+define Device/myir_myd-yt113x-emmc
+  $(call Device/FitImageGzip)
+  DEVICE_VENDOR := MYIR
+  DEVICE_MODEL := MYD-YT113X (eMMC)
+  DEVICE_PACKAGES := kmod-rtc-sunxi kmod-eeprom-at24 kmod-gpio-pca953x kmod-rtc-rx8025
+  SOC := sun8i-t113s
+  IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
+endef
+TARGET_DEVICES += myir_myd-yt113x-emmc
+
+define Device/myir_myd-yt113x-spi
+  $(call Device/FitImageGzip)
+  DEVICE_VENDOR := MYIR
+  DEVICE_MODEL := MYD-YT113X (SPI)
+  DEVICE_PACKAGES := kmod-rtc-sunxi kmod-eeprom-at24 kmod-gpio-pca953x kmod-rtc-rx8025
+  SOC := sun8i-t113s
+endef
+TARGET_DEVICES += myir_myd-yt113x-spi
+
+define Device/olimex_olinuxino
+  $(call Device/FitImageGzip)
+  DEVICE_VENDOR := Olimex
+  DEVICE_MODEL := Olinuxino T113
+  DEVICE_PACKAGES:=kmod-rtc-sunxi
+  SOC := sun8i-t113s
+  IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
+endef
+TARGET_DEVICES += olimex_olinuxino
+
+define Device/rongpin_rp-t113
+  $(call Device/FitImageGzip)
+  DEVICE_VENDOR := Rongpin
+  DEVICE_MODEL := RP-T113
+  DEVICE_PACKAGES:=kmod-rtc-sunxi kmod-rtl8xxxu rtl8723bu-firmware wpad-openssl
+  SOC := sun8i-t113s
+  IMAGE/sdcard.img.gz := sunxi-sdcard | append-metadata | gzip
+endef
+TARGET_DEVICES += rongpin_rp-t113
