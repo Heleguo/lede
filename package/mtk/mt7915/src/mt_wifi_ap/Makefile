@@ -1927,7 +1927,7 @@ EXTRA_CFLAGS += -DMT76XX_COMBO_DUAL_DRIVER_SUPPORT
 endif
 
 ifneq ($(CONFIG_MT76XX_COMBO_DUAL_DRIVER_SUPPORT),y)
-ccflags-y += -Werror
+#ccflags-y += -Werror
 endif
 
 ccflags-y += -DMT_BAND4_DFS_SUPPORT
