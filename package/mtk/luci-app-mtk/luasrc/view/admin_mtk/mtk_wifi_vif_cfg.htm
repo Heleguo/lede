@@ -1,4 +1,3 @@
-
 <%+header%>
 <!--
     This module is a demo to configure MTK' proprietary WiFi driver.
@@ -183,7 +182,7 @@ function hi(to, WPS_state, devname, vifname)
             <%end%>
         </legend>
         <div class="alert-message" id="BusyText_VIF" style="display:none;">
-            <img src="<%=resource%>/icons/loading.gif" alt="" style="vertical-align:middle" />
+            <img src="<%=resource%>/icons/loading.svg" alt="" style="vertical-align:middle" />
             <big><strong>Please wait while the request is being processed.</strong></big>
         </div>
         <div class="alert-message" id="EASYMESH_WARNING_MSG" style="display:none;">
@@ -1123,7 +1122,7 @@ function hi(to, WPS_state, devname, vifname)
 AA:BB:CC:DD:EE:FF
 11:22:33:aa:bb:cc
             </pre>
-            <textarea name="__maclist" id="__maclist" <% if first_card_cfgs.MapMode == "1" then %> disabled="disabled" <% end %> style="width:98%; height: 200px;"><%
+            <textarea name="__maclist" id="__maclist" style="width:98%; height: 200px;"><%
             local list = cfgs["AccessControlList"..(vifidx-1)] or ""
             write(table.concat(list:split(";"), "\n"))
             %></textarea>

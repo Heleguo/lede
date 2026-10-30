@@ -12,7 +12,7 @@ MonCon = function()
         var img = document.createElement('img');
         img.onload = this.conOk;
         img.onerror = this.conErr;
-        img.src = '/luci-static/resources/icons/loading.gif?' + Math.random();
+        img.src = '/luci-static/resources/icons/loading.svg?' + Math.random();
     }
 
     this.conErr = function()

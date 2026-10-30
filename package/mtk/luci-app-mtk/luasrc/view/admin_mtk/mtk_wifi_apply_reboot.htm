@@ -26,7 +26,7 @@
         <input class="cbi-button cbi-button-apply" type="button" value="重启" onclick="init_reboot()" />
     </div>
     <h4 id="msg_on_reboot" class="alert-message warning" style="display:none">
-        <img src="<%=resource%>/icons/loading.gif" alt="" style="vertical-align:middle" />
+        <img src="<%=resource%>/icons/loading.svg" alt="" style="vertical-align:middle" />
         请稍候，设备重启正在进行中。
     </h4>
     <h4 id="unreach_msg" class="alert-message error" style="display:none">设备尚未恢复在线！</h4>
@@ -40,7 +40,7 @@
         {
             var loadingImg = document.createElement('IMG');
             loadingImg.onload = online;
-            loadingImg.src = '<%=resource%>/icons/loading.gif?' + Math.random();
+            loadingImg.src = '<%=resource%>/icons/loading.svg?' + Math.random();
             numPings -= 1;
             if(numPings <= 0){
                 document.getElementById("msg_on_reboot").style.display = 'none';

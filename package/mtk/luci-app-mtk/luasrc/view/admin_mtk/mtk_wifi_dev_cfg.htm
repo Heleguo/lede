@@ -424,7 +424,7 @@ function hi(to) {
                 </tr>
                 <tr id="__pbLoadingRow" style="display:none">
                     <td colspan="7" style="text-align:center">
-                        <img src="<%=resource%>/icons/loading.gif" alt="<%:加载中%>" style="vertical-align:middle;" />
+                        <img src="<%=resource%>/icons/loading.svg" alt="<%:加载中%>" style="vertical-align:middle;" />
                     &nbsp;&nbsp;&nbsp; 请稍候，正在应用功率增强设置。
                     </td>
                 </tr>
@@ -447,7 +447,7 @@ function hi(to) {
     </div>
 </form>
 
- 
+
 <form method="post" name="cbi2" action="<%=luci.dispatcher.build_url("admin", "network", "wifi", "dev_cfg_raw", devname)%>" enctype="multipart/form-data" onreset="return cbi_validate_reset(this)" onsubmit="return cbi_validate_form(this, '部分字段无效，无法保存值！')" autocomplete="off">
     <fieldset class="cbi-section">
         <legend> 原始配置 ( 直接编辑WiFi配置文件 )</legend>
@@ -469,6 +469,7 @@ function hi(to) {
         <input class="cbi-button cbi-button-apply" id="reset" value="恢复出厂设置" type="button" onclick="if (confirm('您确定要将 <%=devname%> 的配置文件恢复为出厂默认设置吗？')) location.href='<%=luci.dispatcher.build_url("admin", "network", "wifi", "reset_to_defaults", devname)%>'">
     </div>
 </form>
+
 
 
 <script type="text/javascript">

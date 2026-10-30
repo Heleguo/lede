@@ -56,7 +56,7 @@ end
                             <% chipname = string.split(dev.devname,".")[1].."."..(dev.mainidx) %>
                             <tr  style="height:45px">
                                 <td style="width:34px">
-                                    <img src="/luci-static/resources/icons/wifi.png" style="float:left; margin-right:10px" width="30px" height="30px">
+                                    <img src="/luci-static/resources/icons/wifi.svg" style="float:left; margin-right:10px" width="30px" height="30px">
                                 </td>
                                 <td colspan="2" style="text-align:left">
                                     <big><strong title="<%=dev.profile%>"> <%=string.split(dev.devname,".")[1]%></strong></big>
@@ -110,9 +110,9 @@ end
                                 <td></td>
                                 <td class="cbi-value-field" style="width:16px; padding:3px;padding-left:40px;">
                                     <% if vif.state == "up" then %>
-                                    <img src="/luci-static/resources/icons/signal-75-100.png">
+                                    <img src="/luci-static/resources/icons/signal-075-100.svg">
                                     <% else %>
-                                    <img src="/luci-static/resources/icons/signal-none.png">
+                                    <img src="/luci-static/resources/icons/signal-none.svg">
                                     <% end %>
                                 </td>
                                 <td class="cbi-value-field" style="vertical-align:middle; text-align:left; padding:3px">
@@ -159,15 +159,15 @@ end
                                 <td></td>
                                 <td class="cbi-value-field" style="width:16px; padding:3px;padding-left:40px;">
                                     <% if dev.apcli.state == "up" then %>
-                                    <img src="/luci-static/resources/icons/signal-75-100.png">
+                                    <img src="/luci-static/resources/icons/signal-075-100.svg">
                                     <% else %>
-                                    <img src="/luci-static/resources/icons/signal-none.png">
+                                    <img src="/luci-static/resources/icons/signal-none.svg">
                                     <% end %>
                                 </td>
                                 <td class="cbi-value-field" style="vertical-align:middle; text-align:left; padding:3px"><strong>接口：</strong> <%=dev.apcli.devname%> | <strong>类型：</strong> STA | <strong>状态：</strong> <span id="ConnStatus_<%=dev.apcli.devname%>"><% if dev.ApCliEnable ~= "1" then %> 未连接 <% end %></span>
                                     <br>
                                     <div id="LoadingBar_<%=dev.apcli.devname%>" <% if dev.ApCliEnable ~= "1" then %> style="display:none" <% end %>>
-                                        <img src="<%=resource%>/icons/loading.gif" alt="<%:加载中%>" style="width:20px;height:20px;vertical-align:middle;"/> <cite>&nbsp;正在加载 <%=dev.apcli.devname%> 的连接信息</cite>
+                                        <img src="<%=resource%>/icons/loading.svg" alt="<%:加载中%>" style="width:20px;height:20px;vertical-align:middle;"/> <cite>&nbsp;正在加载 <%=dev.apcli.devname%> 的连接信息</cite>
                                     </div>
                                     <div id="ConnInfo_<%=dev.apcli.devname%>" style="display:none">
                                         <strong>BSSID：</strong> <span id="ApCliBssid_<%=dev.apcli.devname%>"></span> |

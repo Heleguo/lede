@@ -269,7 +269,7 @@ function hi(to) {
                         for _,vif in ipairs(dev.vifs) do
                         %>
                         <tr>
-                            <td rowspan="2"><img src="/luci-static/resources/icons/wifi_big.png" style="float:left; margin-right:10px"><%=vif.__ssid%></td>
+                            <td rowspan="2"><img src="/luci-static/resources/icons/wifi.svg" style="float:left; margin-right:10px"><%=vif.__ssid%></td>
                             <td>
                                 <input type="checkbox" name="__atc_vif<%=vif.vifidx%>_tp" value="1" 
                                 <% if vif.__atc_tp == "1"  then %>checked="checked"<% end %>>
