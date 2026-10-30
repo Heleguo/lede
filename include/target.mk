@@ -54,8 +54,8 @@ DEFAULT_PACKAGES.nas:=\
 # For router targets
 DEFAULT_PACKAGES.router:=\
 	dnsmasq-full firewall4 nftables-json iptables ppp ppp-mod-pppoe odhcp6c odhcpd-ipv6only ip6tables libip6tc kmod-ipt-nat6 \
-	block-mount coremark kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-raw kmod-tun \
-	iptables-mod-tproxy iptables-mod-extra ipset ip-full default-settings luci luci-proto-ipv6 \
+	block-mount kmod-nf-nathelper kmod-nf-nathelper-extra kmod-ipt-raw kmod-tun \
+	iptables-mod-tproxy iptables-mod-extra ipset default-settings luci luci-proto-ipv6 \
 	luci-app-upnp luci-app-arpbind luci-app-filetransfer \
 	luci-app-turboacc luci-app-wol curl ca-certificates
 
